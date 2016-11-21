@@ -23,6 +23,14 @@
         </div>
     </div>
 </div>
-{#-  Add javascript here to request the results from the server.  #}
+<script type="application/javascript">
+    $(function () {
+        $.post("{{ url_for("search_results") }}", {
+            query: "{{ query }}"
+        }, function (resp) {
+            $(".container").replaceWith(resp);
+        })
+    })
+</script>
 </body>
 </html>
