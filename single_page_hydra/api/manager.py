@@ -1,5 +1,6 @@
 from threading import Thread
 
+from single_page_hydra.api.cache import DumbCache
 from single_page_hydra.api.clients import (
     pixapi,
     WikiAPI,
@@ -8,6 +9,7 @@ from single_page_hydra.api.clients import (
 
 class ApiManager:
     def __init__(self):
+        self._cache = DumbCache()
         self._clients = [
             pixapi(),
             WikiAPI(),
@@ -23,6 +25,11 @@ class ApiManager:
         :rtype: dict
         """
 
+        # Check the cache before sending out requests.
+        cached_results = self._cache.get(query)
+        if cached_results is not None:
+            return cached_results
+
         # Fire up all of the worker threads.
         workers = [ApiClientWorker(client, query) for client in self._clients]
         for worker in workers:
@@ -35,6 +42,8 @@ class ApiManager:
                 if worker.done:
                     results.update(worker.result)
                     workers.remove(worker)
+
+        self._cache.put(query, results)
 
         return results
 
