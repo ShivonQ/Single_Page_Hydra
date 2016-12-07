@@ -1,8 +1,12 @@
+import sys
 from flask import (
     Flask,
     render_template,
     request,
 )
+
+# Need to add the project directory to the path to fix the ImportError.
+sys.path.append('..')
 
 from single_page_hydra.api.manager import ApiManager
 
